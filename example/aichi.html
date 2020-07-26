@@ -1,0 +1,109 @@
+﻿<!DOCTYPE html>
+<html lang='ja'>
+<head>
+<meta charset='UTF-8' name='viewport' content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no'>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"></script>
+<style>
+html,body,#map{
+	margin: 0;
+	padding: 0;
+	width: 100%;
+	height: 100%;
+}
+
+#pop_moji{
+	color: #ff0000;
+	font-size: 16px;
+
+}
+</style>
+
+<title>愛知県避難マップ</title>
+<script src='https://linkevery2s.github.io/shelter/geojson/aichi.geojson'></script>
+
+</head>
+<body onLoad='ini()'>
+	<div id='map'></div>
+
+<script>
+function ini(){
+
+var map = L.map('map');
+
+/* 基本地図を国土地理院地図に設定 */
+L.tileLayer('https://cyberjapandata.gsi.go.jp/xyz/pale/{z}/{x}/{y}.png', {
+attribution: '&copy; <a href="http://maps.gsi.go.jp/development/ichiran.html" target="_blank">地理院タイル</a>'
+}).addTo(map);
+
+/* 中心位置を表示 */
+map.setView([35.002, 137.200], 10)
+
+	var hinandata = L.geoJson(aichi, {style: sty,onEachFeature: geo_k, pointToLayer: iro});
+	map.addLayer(hinandata);
+
+}
+
+function sty(feature) {
+	return feature.properties && feature.properties.style;
+}
+
+function geo_k(feature, layer) {
+    var popup;
+    if (feature.properties && feature.properties.Name) {
+        popup = "名称：" + feature.properties.Name;
+    }
+    
+    if (feature.properties && feature.properties.Jusho){
+    	popup += '<br>住所：' + feature.properties.Jusho;
+    }
+
+    if (feature.properties && feature.properties.kouzui){
+    	popup += '<br>洪水：<span id = "pop_moji">' + feature.properties.kouzui + '</span>';
+    }
+
+    if (feature.properties && feature.properties.gake){
+    	popup += '　がけ崩れ、土石流及び地滑り：<span id = "pop_moji">' + feature.properties.gake + '</span><br>';
+    }
+
+    if (feature.properties && feature.properties.takashio){
+    	popup += '高潮：<span id = "pop_moji">' + feature.properties.takashio + '</span>';
+    }
+
+    if (feature.properties && feature.properties.jishin){
+    	popup += '　地震：<span id = "pop_moji">' + feature.properties.jishin + '</span>';
+    }
+
+    if (feature.properties && feature.properties.tsunami){
+    	popup += '　津波：<span id = "pop_moji">' + feature.properties.tsunami + '</span><br>';
+    }
+
+    if (feature.properties && feature.properties.kaji){
+    	popup += '大規模な火事：<span id = "pop_moji">' + feature.properties.kaji + '</span>';
+    }
+
+    if (feature.properties && feature.properties.naisui){
+    	popup += '　内水氾濫：<span id = "pop_moji">' + feature.properties.naisui + '</span>';
+    }
+
+    if (feature.properties && feature.properties.kazan){
+    	popup += '　火山：<span id = "pop_moji">' + feature.properties.kazan + '</span>';
+    }
+		
+    layer.bindPopup(popup);
+}
+
+function iro(feature, latlng) {
+	return L.circleMarker(latlng, {
+		radius: 10,
+		fillColor: "#2EFE2E",
+		color: "#000",
+		weight: 1,
+		opacity: 1,
+		fillOpacity: 0.8
+	});
+}
+
+</script>
+</body>
+</html>
